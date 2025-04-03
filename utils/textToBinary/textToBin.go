@@ -4,6 +4,7 @@ import (
 	"container/heap"
 	"fmt"
 	"sort"
+	"strings"
 )
 
 type Node struct {
@@ -54,8 +55,6 @@ func BuildTree(dico map[rune]int) *Node {
 
 	// Ajouter les nœuds au tas dans l'ordre trié
 	for _, cf := range charFreqList {
-		fmt.Printf("%s\n", string(cf.Char))
-
 		heap.Push(tree, &Node{Char: cf.Char, Frequency: cf.Frequency})
 	}
 
@@ -102,17 +101,17 @@ func DecodeHuffman(encodedText string, codes map[rune]string) string {
 		invertedMap[value] = key
 	}
 
-	decodedText := ""
+	var decodedText strings.Builder
 	currentCode := ""
 
 	for _, bit := range encodedText {
 		currentCode += string(bit)
 
 		if char, found := invertedMap[currentCode]; found {
-			decodedText += string(char)
+			decodedText.WriteRune(char)
 			currentCode = ""
 		}
 	}
 
-	return decodedText
+	return decodedText.String()
 }
