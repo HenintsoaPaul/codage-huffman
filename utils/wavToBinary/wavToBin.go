@@ -1,4 +1,4 @@
-package main
+package wavToBinary
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func lireWav(nomFichier string) []byte {
+func LoadWav(nomFichier string) []byte {
 	// Ouvrir le fichier
 	f, err := os.Open(nomFichier)
 	if err != nil {
@@ -30,7 +30,7 @@ func lireWav(nomFichier string) []byte {
 	return data
 }
 
-func bytesEnBinaire(data []byte) []string {
+func BytesEnBinaire(data []byte) []string {
 	// Convertir chaque byte en une chaîne binaire de 8 bits
 	binaire := make([]string, len(data))
 	for i, b := range data {
@@ -41,8 +41,8 @@ func bytesEnBinaire(data []byte) []string {
 
 func main() {
 	nomFichier := "test.wav"
-	dataAudio := lireWav(nomFichier)
-	binaire := bytesEnBinaire(dataAudio)
+	dataAudio := LoadWav(nomFichier)
+	binaire := BytesEnBinaire(dataAudio)
 
 	// Afficher les 10 premiers octets en binaire
 	fmt.Println(dataAudio[:])

@@ -2,49 +2,66 @@ package main
 
 import (
 	"fmt"
+	"huffman/utils/imgToBinary"
+	"huffman/utils/textToBinary"
+	"huffman/utils/wavToBinary"
 	"log"
-	"os"
+	"strings"
 )
 
-func lireWav(nomFichier string) []byte {
-	// Ouvrir le fichier
-	f, err := os.Open(nomFichier)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
+func getHiddenMessage(data []byte, targetIndexes []int) string {
+	var hiddenMessage strings.Builder
 
-	// Lire tout le fichier
-	data, err := os.ReadFile(nomFichier)
-	if err != nil {
-		log.Fatal(err)
+	for _, index := range targetIndexes {
+		hiddenMessage.WriteString(fmt.Sprintf("%08b", data[index]))
 	}
 
-	// Ignorer l'entête WAV (généralement 44 octets)
-	if len(data) > 44 {
-		data = data[44:]
-	} else {
-		log.Fatal("Fichier WAV trop petit pour contenir une en-tête valide")
-	}
-
-	return data
+	return hiddenMessage.String()
 }
 
-func bytesEnBinaire(data []byte) []string {
-	// Convertir chaque byte en une chaîne binaire de 8 bits
-	binaire := make([]string, len(data))
-	for i, b := range data {
-		binaire[i] = fmt.Sprintf("%08b", b) // Format binaire sur 8 bits
+func text() {
+	text := "This is a test"
+	dico := textToBinary.GetDictionary(text)
+	tree := textToBinary.BuildTree(dico)
+
+	codes := make(map[rune]string)
+	textToBinary.GetHuffmanCodes(tree, "", codes)
+
+	textToBinary.PrintCodes(codes)
+
+	// image -> bin[] -> encoded -> text normal
+
+	//encoded := "1110101010110111000"
+	encoded := "001101001011"
+	decoded := textToBinary.DecodeHuffman(encoded, codes)
+	fmt.Printf("Texte décodé: '%s'\n", decoded)
+}
+
+func img() {
+	img, err := imgToBinary.LoadPngImage("resources/test_3x3.png")
+	if err != nil {
+		log.Fatal(err)
 	}
-	return binaire
+
+	intensities := imgToBinary.GetGreyscaleIntensities(img)
+
+	bins := imgToBinary.ConvertGreyscalesToBinaries(intensities)
+	for _, bin := range bins {
+		fmt.Println(bin)
+	}
+}
+
+func wav() {
+	nomFichier := "resources/test.wav"
+	dataAudio := wavToBinary.LoadWav(nomFichier)
+	binaire := wavToBinary.BytesEnBinaire(dataAudio)
+
+	fmt.Println(dataAudio[:])
+	fmt.Println(binaire[:])
 }
 
 func main() {
-	nomFichier := "./resources/test.wav"
-	dataAudio := lireWav(nomFichier)
-	binaire := bytesEnBinaire(dataAudio)
-
-	// Afficher les 10 premiers octets en binaire
-	fmt.Println(dataAudio[:])
-	fmt.Println(binaire[:])
+	//text()
+	//img()
+	wav()
 }
