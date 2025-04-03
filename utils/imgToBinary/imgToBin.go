@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func chargerImage(imgPath string) (image.Image, error) {
+func LoadPngImage(imgPath string) (image.Image, error) {
 	file, err := os.Open(imgPath)
 	if err != nil {
 		return nil, fmt.Errorf("erreur lors de l'ouverture du fichier: %v", err)
@@ -23,7 +23,7 @@ func chargerImage(imgPath string) (image.Image, error) {
 	return img, nil
 }
 
-func obtenir_intensites_gris(img image.Image) []uint8 {
+func GetGreyscaleIntensities(img image.Image) []uint8 {
 	if img == nil {
 		log.Fatal("l'image est nil")
 	}
@@ -35,7 +35,7 @@ func obtenir_intensites_gris(img image.Image) []uint8 {
 	index := 0
 	for y := bounds.Min.Y; y < height; y++ {
 		for x := bounds.Min.X; x < width; x++ {
-			intensities[index] = get_pixel_greyscale(x, y, img)
+			intensities[index] = getPixelGreyscale(x, y, img)
 			index++
 		}
 	}
@@ -43,7 +43,7 @@ func obtenir_intensites_gris(img image.Image) []uint8 {
 	return intensities
 }
 
-func get_pixel_greyscale(x int, y int, img image.Image) uint8 {
+func getPixelGreyscale(x int, y int, img image.Image) uint8 {
 	// Method 1: Extract RGB (16 bits) then convert to 8 bits
 	r, g, b, _ := img.At(x, y).RGBA()
 	r8, g8, b8 := uint8(r>>8), uint8(g>>8), uint8(b>>8)
@@ -58,7 +58,7 @@ func get_pixel_greyscale(x int, y int, img image.Image) uint8 {
 	return grayColor
 }
 
-func grayscale_to_binary(intensities []uint8) []string {
+func ConvertGreyscalesToBinaries(intensities []uint8) []string {
 	bins := make([]string, len(intensities))
 
 	for i, intensity := range intensities {
@@ -69,15 +69,15 @@ func grayscale_to_binary(intensities []uint8) []string {
 }
 
 func main() {
-	img, err := chargerImage("test_3x3.png")
+	img, err := LoadPngImage("test_3x3.png")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	intensities := obtenir_intensites_gris(img)
+	intensities := GetGreyscaleIntensities(img)
 
-	// bins := grayscale_to_binary(intensities)
-	for _, bin := range intensities {
+	bins := ConvertGreyscalesToBinaries(intensities)
+	for _, bin := range bins {
 		fmt.Println(bin)
 	}
 }
