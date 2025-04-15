@@ -16,9 +16,14 @@ type Node struct {
 
 type MyQueue []*Node
 
-func (pq MyQueue) Len() int           { return len(pq) }
-func (pq MyQueue) Less(i, j int) bool { return pq[i].Frequency < pq[j].Frequency }
-func (pq MyQueue) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
+func (pq MyQueue) Len() int { return len(pq) }
+func (pq MyQueue) Less(i, j int) bool {
+	if pq[i].Frequency == pq[j].Frequency {
+		return pq[i].Char < pq[j].Char // Ordre alphabétique pour la stabilité
+	}
+	return pq[i].Frequency < pq[j].Frequency
+}
+func (pq MyQueue) Swap(i, j int) { pq[i], pq[j] = pq[j], pq[i] }
 func (pq *MyQueue) Push(x interface{}) {
 	*pq = append(*pq, x.(*Node))
 }
@@ -30,38 +35,21 @@ func (pq *MyQueue) Pop() interface{} {
 	return item
 }
 
-func BuildTree(dico map[rune]int) *Node {
+func BuildTree(text string) *Node {
 	tree := &MyQueue{}
 	heap.Init(tree)
 
-	// Convertir le dictionnaire en une liste et trier par fréquence
-	type CharFreq struct {
-		Char      rune
-		Frequency int
-	}
+	dico := GetDictionary(text)
 
-	var charFreqList []CharFreq
 	for char, freq := range dico {
-		charFreqList = append(charFreqList, CharFreq{Char: char, Frequency: freq})
-	}
-
-	// Trier par fréquence, puis par caractère pour garantir un ordre stable
-	sort.SliceStable(charFreqList, func(i, j int) bool {
-		if charFreqList[i].Frequency == charFreqList[j].Frequency {
-			return charFreqList[i].Char < charFreqList[j].Char
-		}
-		return charFreqList[i].Frequency < charFreqList[j].Frequency
-	})
-
-	// Ajouter les nœuds au tas dans l'ordre trié
-	for _, cf := range charFreqList {
-		heap.Push(tree, &Node{Char: cf.Char, Frequency: cf.Frequency})
+		heap.Push(tree, &Node{Char: char, Frequency: freq})
 	}
 
 	for tree.Len() > 1 {
 		left := heap.Pop(tree).(*Node)
 		right := heap.Pop(tree).(*Node)
-		parent := &Node{Frequency: left.Frequency + right.Frequency, Left: left, Right: right}
+		// parent := &Node{Frequency: left.Frequency + right.Frequency, Left: left, Right: right}
+		parent := &Node{Frequency: left.Frequency + right.Frequency, Left: left, Right: right, Char: left.Char + right.Char}
 		heap.Push(tree, parent)
 	}
 
