@@ -90,9 +90,23 @@ func GetDictionary(text string) map[rune]int {
 }
 
 func PrintCodes(codes map[rune]string) {
-	for char, code := range codes {
-		fmt.Printf("%c: %s\n", char, code)
+	keys := make([]rune, 0, len(codes))
+	for key := range codes {
+		keys = append(keys, key)
 	}
+
+	// trier par binaire
+	sort.Slice(keys, func(i, j int) bool {
+		return codes[keys[i]] < codes[keys[j]]
+	})
+
+	for _, key := range keys {
+		fmt.Printf("%c - %s\n", key, codes[key])
+	}
+
+	// for char, code := range codes {
+	// 	fmt.Printf("%c: %s\n", char, code)
+	// }
 }
 
 func DecodeHuffman(encodedText string, codes map[rune]string) string {
